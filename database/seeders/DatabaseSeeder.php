@@ -13,12 +13,8 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            users::class,
             BookingSeeder::class,
-        ]);
-
-        User::factory()->create([
-            'name' => 'Prashant Kumar',
-            'email' => 'pk1093524@gmail.com',
         ]);
     }
 }

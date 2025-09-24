@@ -25,6 +25,7 @@ import {
   UserCog,
 } from 'lucide-react'
 import AppLogo from './app-logo'
+import { TeamSwitcher } from './team-switcher'
 
 const mainNavItems: NavItem[] = [
   {
@@ -99,7 +100,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader>
-        <SidebarMenu>
+        {/* <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard" prefetch>
@@ -107,7 +108,8 @@ export function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-        </SidebarMenu>
+        </SidebarMenu> */}
+        <TeamSwitcher />
       </SidebarHeader>
 
       <SidebarContent>

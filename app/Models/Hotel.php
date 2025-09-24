@@ -22,6 +22,14 @@ class Hotel extends Model
         'status'
     ];
 
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'hotel_users')
+            ->using(\App\Models\HotelUsers::class)
+            ->withPivot(['role', 'status'])
+            ->withTimestamps();
+    }
+
     public function branches()
     {
         return $this->hasMany(HotelBranch::class);
@@ -41,9 +49,5 @@ class Hotel extends Model
     public function bookings()
     {
         return $this->hasMany(Booking::class);
-    }
-    public function staff()
-    {
-        return $this->hasMany(Staff::class);
     }
 }

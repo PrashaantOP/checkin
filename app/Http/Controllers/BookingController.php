@@ -13,16 +13,19 @@ class BookingController extends Controller
 {
     public function index()
     {
-        // Paginate and eager load related guest, hotel, etc. as needed
+        $currentHotelId = session('current_hotel_id');
+
         $bookings = Booking::with(['guest', 'hotel', 'rooms.roomInventory'])
-            ->latest()->paginate(20);
-        // dd($bookings);
+            ->where('hotel_id', $currentHotelId)  // Filter by current_hotel_id
+            ->latest()->paginate(2);
+
         return Inertia::render('backend/Bookings/Index', [
             'bookings' => $bookings,
-            'guests' => Guest::select('id', 'first_name', 'last_name')->get(),
-            'hotels' => Hotel::select('id', 'name')->get(),
+            'guests'   => Guest::select('id', 'first_name', 'last_name')->get(),
+            'hotels'   => Hotel::select('id', 'name')->where('id', $currentHotelId)->get(),
         ]);
     }
+
 
     public function store(Request $request)
     {

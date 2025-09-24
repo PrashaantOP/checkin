@@ -33,6 +33,14 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function hotels()
+    {
+        return $this->belongsToMany(Hotel::class, 'hotel_users')
+            ->using(\App\Models\HotelUsers::class) // tell Laravel to use this model for the pivot
+            ->withPivot(['role', 'status'])
+            ->withTimestamps();
+    }
+
     /**
      * Get the attributes that should be cast.
      *

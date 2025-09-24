@@ -85,6 +85,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('room_id')->constrained('rooms')->cascadeOnDelete();
             $table->foreignId('amenity_id')->constrained('amenities')->cascadeOnDelete();
+            $table->timestamps();
         });
 
         // ---------------- Guests ----------------
@@ -103,11 +104,11 @@ return new class extends Migration
         });
 
         // ---------------- Roles ----------------
-        Schema::create('roles', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('description')->nullable();
-        });
+        // Schema::create('roles', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('name');
+        //     $table->string('description')->nullable();
+        // });
 
         // ---------------- Users ----------------
         // Schema::create('users', function (Blueprint $table) {
@@ -147,6 +148,7 @@ return new class extends Migration
             $table->decimal('price_per_night', 10, 2);
             $table->integer('nights');
             $table->decimal('subtotal', 10, 2);
+            $table->timestamps();
         });
 
         // ---------------- Packages ----------------
@@ -168,6 +170,7 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->integer('quantity')->default(1);
             $table->decimal('subtotal', 10, 2);
+            $table->timestamps();
         });
 
         // ---------------- Checkins ----------------
@@ -195,6 +198,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('description')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->timestamps();
         });
 
         // ---------------- Payments ----------------
@@ -218,6 +222,7 @@ return new class extends Migration
             $table->decimal('rate', 10, 2);
             $table->boolean('inclusive')->default(false);
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->timestamps();
         });
 
         // ---------------- Invoices ----------------
@@ -234,15 +239,16 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // ---------------- Staff ----------------
-        Schema::create('staff', function (Blueprint $table) {
+        // ---------------- hotel user ----------------
+        Schema::create('hotel_users', function (Blueprint $table) {
             $table->id();
             $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->string('designation');
-            $table->string('phone')->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->enum('role', ['admin', 'staff'])->default('staff');
+            $table->enum('status', [1, 0])->default(1);
             $table->timestamps();
+
+            $table->unique(['hotel_id', 'user_id']);
         });
 
         // ---------------- Maintenance ----------------
@@ -253,6 +259,7 @@ return new class extends Migration
             $table->date('reported_date');
             $table->date('resolved_date')->nullable();
             $table->enum('status', ['pending', 'resolved'])->default('pending');
+            $table->timestamps();
         });
 
         // ---------------- Reviews ----------------
@@ -282,7 +289,7 @@ return new class extends Migration
         Schema::dropIfExists('notifications');
         Schema::dropIfExists('reviews');
         Schema::dropIfExists('maintenance');
-        Schema::dropIfExists('staff');
+        Schema::dropIfExists('hotel_users');
         Schema::dropIfExists('invoices');
         Schema::dropIfExists('taxes');
         Schema::dropIfExists('payments');
@@ -294,7 +301,7 @@ return new class extends Migration
         Schema::dropIfExists('booking_rooms');
         Schema::dropIfExists('bookings');
         // Schema::dropIfExists('users');
-        Schema::dropIfExists('roles');
+        // Schema::dropIfExists('roles');
         Schema::dropIfExists('guests');
         Schema::dropIfExists('room_amenities');
         Schema::dropIfExists('room_inventory');
