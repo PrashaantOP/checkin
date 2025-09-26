@@ -22,6 +22,11 @@ class Hotel extends Model
         'status'
     ];
 
+    public function guests()
+    {
+        return $this->hasMany(Guest::class);
+    }
+
     public function users()
     {
         return $this->belongsToMany(User::class, 'hotel_users')

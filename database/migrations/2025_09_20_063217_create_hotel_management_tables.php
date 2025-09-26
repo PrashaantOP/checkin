@@ -44,6 +44,7 @@ return new class extends Migration
         // ---------------- Amenities ----------------
         Schema::create('amenities', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
             $table->timestamps();
@@ -64,6 +65,7 @@ return new class extends Migration
         // ---------------- Room Prices ----------------
         Schema::create('room_prices', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->foreignId('room_id')->constrained('rooms')->cascadeOnDelete();
             $table->date('date');
             $table->decimal('price', 10, 2);
@@ -73,6 +75,7 @@ return new class extends Migration
         // ---------------- Room Inventory ----------------
         Schema::create('room_inventory', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->foreignId('room_id')->constrained('rooms')->cascadeOnDelete();
             $table->string('room_number');
             $table->string('floor_number')->nullable();
@@ -83,6 +86,7 @@ return new class extends Migration
         // ---------------- Room Amenities Pivot ----------------
         Schema::create('room_amenities', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->foreignId('room_id')->constrained('rooms')->cascadeOnDelete();
             $table->foreignId('amenity_id')->constrained('amenities')->cascadeOnDelete();
             $table->timestamps();
@@ -91,6 +95,7 @@ return new class extends Migration
         // ---------------- Guests ----------------
         Schema::create('guests', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email')->nullable();
@@ -142,6 +147,7 @@ return new class extends Migration
         // ---------------- Booking Rooms ----------------
         Schema::create('booking_rooms', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->foreignId('booking_id')->constrained('bookings')->cascadeOnDelete();
             $table->foreignId('room_inventory_id')->constrained('room_inventory')->cascadeOnDelete();
             $table->integer('guests_count');
@@ -165,6 +171,7 @@ return new class extends Migration
         // ---------------- Booking Packages ----------------
         Schema::create('booking_packages', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->foreignId('booking_id')->constrained('bookings')->cascadeOnDelete();
             $table->foreignId('package_id')->constrained('packages')->cascadeOnDelete();
             $table->decimal('price', 10, 2);
@@ -176,6 +183,7 @@ return new class extends Migration
         // ---------------- Checkins ----------------
         Schema::create('checkins', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->foreignId('booking_id')->constrained('bookings')->cascadeOnDelete();
             $table->timestamp('checkin_time')->nullable();
             $table->foreignId('assigned_staff')->nullable()->constrained('users')->nullOnDelete();
@@ -186,6 +194,7 @@ return new class extends Migration
         // ---------------- Checkouts ----------------
         Schema::create('checkouts', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->foreignId('booking_id')->constrained('bookings')->cascadeOnDelete();
             $table->timestamp('checkout_time')->nullable();
             $table->text('notes')->nullable();
@@ -195,6 +204,7 @@ return new class extends Migration
         // ---------------- Payment Methods ----------------
         Schema::create('payment_methods', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->string('name');
             $table->string('description')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
@@ -204,6 +214,7 @@ return new class extends Migration
         // ---------------- Payments ----------------
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->foreignId('booking_id')->constrained('bookings')->cascadeOnDelete();
             $table->foreignId('payment_method_id')->constrained('payment_methods');
             $table->string('transaction_id')->nullable();
@@ -228,6 +239,7 @@ return new class extends Migration
         // ---------------- Invoices ----------------
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->foreignId('booking_id')->constrained('bookings')->cascadeOnDelete();
             $table->string('invoice_number')->unique();
             $table->date('invoice_date');
@@ -254,6 +266,7 @@ return new class extends Migration
         // ---------------- Maintenance ----------------
         Schema::create('maintenance', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->foreignId('room_inventory_id')->constrained('room_inventory')->cascadeOnDelete();
             $table->text('issue');
             $table->date('reported_date');
@@ -265,6 +278,7 @@ return new class extends Migration
         // ---------------- Reviews ----------------
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->foreignId('booking_id')->constrained('bookings')->cascadeOnDelete();
             $table->foreignId('guest_id')->constrained('guests')->cascadeOnDelete();
             $table->integer('rating');
@@ -275,6 +289,7 @@ return new class extends Migration
         // ---------------- Notifications ----------------
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('title');
             $table->text('message');

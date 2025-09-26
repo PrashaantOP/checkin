@@ -59,6 +59,7 @@ export default function BookingForm({ booking, hotels, onClose }: BookingFormPro
     setSelectedGuest(guest)
     setData('guest_id', guest.id)
     setOpenGuestModal(false)
+    console.log('Guest selected ID:', guest?.id)
   }
 
   const submit = (e: React.FormEvent) => {

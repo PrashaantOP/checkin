@@ -33,29 +33,7 @@ class BookingSeeder extends Seeder
         ]);
 
         // 2. Sample Guests
-        $guest1 = Guest::create([
-            'first_name'      => 'Ramesh',
-            'last_name'       => 'Kumar',
-            'email'           => 'ramesh@example.com',
-            'phone'           => '9876543210',
-            'address'         => 'Patna',
-            'city'            => 'Patna',
-            'country'         => 'India',
-            'id_proof_type'   => 'Aadhar',
-            'id_proof_number' => '1234-5678-9000',
-        ]);
 
-        $guest2 = Guest::create([
-            'first_name'      => 'Pankaj',
-            'last_name'       => 'Singh',
-            'email'           => 'pankaj@example.com',
-            'phone'           => '7777888899',
-            'address'         => 'Gaya',
-            'city'            => 'Gaya',
-            'country'         => 'India',
-            'id_proof_type'   => 'PAN',
-            'id_proof_number' => 'ALWPG5809L',
-        ]);
 
         // 3. Sample Rooms
         $room1 = Room::create([
@@ -77,12 +55,14 @@ class BookingSeeder extends Seeder
 
         // 4. Room Inventory
         $inventory1 = RoomInventory::create([
+            'hotel_id' => 1,
             'room_id'      => $room1->id,
             'room_number'  => '101',
             'floor_number' => '1',
             'status'       => 'available',
         ]);
         $inventory2 = RoomInventory::create([
+            'hotel_id' => 1,
             'room_id'      => $room2->id,
             'room_number'  => '201',
             'floor_number' => '2',
@@ -92,7 +72,7 @@ class BookingSeeder extends Seeder
         // 5. Bookings
         $booking1 = Booking::create([
             'hotel_id'        => $hotel->id,
-            'guest_id'        => $guest1->id,
+            'guest_id'        => 1,
             'booking_number'  => strtoupper(Str::random(8)),
             'check_in_date'   => now()->toDateString(),
             'check_out_date'  => now()->addDay()->toDateString(),
@@ -107,7 +87,7 @@ class BookingSeeder extends Seeder
 
         $booking2 = Booking::create([
             'hotel_id'        => $hotel->id,
-            'guest_id'        => $guest2->id,
+            'guest_id'        => 2,
             'booking_number'  => strtoupper(Str::random(8)),
             'check_in_date'   => now()->addDays(2)->toDateString(),
             'check_out_date'  => now()->addDays(4)->toDateString(),
@@ -122,6 +102,7 @@ class BookingSeeder extends Seeder
 
         // 6. Booking Rooms (pivot room assignment for each booking)
         BookingRoom::create([
+            'hotel_id' => 1,
             'booking_id'         => $booking1->id,
             'room_inventory_id'  => $inventory1->id,
             'guests_count'       => 2,
@@ -130,6 +111,7 @@ class BookingSeeder extends Seeder
             'subtotal'           => 2500.00,
         ]);
         BookingRoom::create([
+            'hotel_id' => 1,
             'booking_id'         => $booking2->id,
             'room_inventory_id'  => $inventory2->id,
             'guests_count'       => 3,

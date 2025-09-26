@@ -39,11 +39,6 @@ class users extends Seeder
             'remember_token' => Str::random(10),
         ]);
 
-        HotelUsers::create([
-            'hotel_id' => 1,
-            'user_id' => 1,
-            'role' => 'admin',
-            'status' => 1,
-        ]);
+
     }
 }

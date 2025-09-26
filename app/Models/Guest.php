@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Guest extends Model
 {
     protected $fillable = [
+        'hotel_id',
         'first_name',
         'last_name',
         'email',
@@ -17,6 +18,11 @@ class Guest extends Model
         'id_proof_type',
         'id_proof_number'
     ];
+
+    public function hotel()
+    {
+        return $this->belongsTo(Hotel::class);
+    }
 
     public function bookings()
     {

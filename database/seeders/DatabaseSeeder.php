@@ -14,6 +14,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             users::class,
+            hotelseeder::class,
+
+            guestseeder::class,
+            hoteluserseeder::class,
             BookingSeeder::class,
         ]);
     }
