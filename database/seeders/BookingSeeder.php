@@ -10,6 +10,7 @@ use App\Models\Room;
 use App\Models\RoomInventory;
 use App\Models\Booking;
 use App\Models\BookingRoom;
+use Illuminate\Support\Facades\DB;
 
 class BookingSeeder extends Seeder
 {
@@ -33,6 +34,15 @@ class BookingSeeder extends Seeder
         ]);
 
         // 2. Sample Guests
+
+        DB::table('hotel_users')->insert([
+            [
+                'hotel_id' => 2,
+                'user_id' => 1,
+                'role' => 'admin',
+                'status' => 1,
+            ]
+        ]);
 
 
         // 3. Sample Rooms
@@ -71,7 +81,7 @@ class BookingSeeder extends Seeder
 
         // 5. Bookings
         $booking1 = Booking::create([
-            'hotel_id'        => $hotel->id,
+            'hotel_id'        => 1,
             'guest_id'        => 1,
             'booking_number'  => strtoupper(Str::random(8)),
             'check_in_date'   => now()->toDateString(),
@@ -86,7 +96,7 @@ class BookingSeeder extends Seeder
         ]);
 
         $booking2 = Booking::create([
-            'hotel_id'        => $hotel->id,
+            'hotel_id'        => 1,
             'guest_id'        => 2,
             'booking_number'  => strtoupper(Str::random(8)),
             'check_in_date'   => now()->addDays(2)->toDateString(),

@@ -11,18 +11,17 @@ const idProofTypes = [
   { value: 'PAN', label: 'PAN Card' }
 ]
 
-function Switch({ checked, onChange }) {
+function Switch({ checked, onChange, disabled }) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${checked ? 'bg-green-600' : 'bg-gray-300'}`}
+      disabled={disabled}
+      onClick={() => !disabled && onChange(!checked)}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${checked ? 'bg-green-600' : 'bg-gray-300'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
-      <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${checked ? 'translate-x-6' : 'translate-x-1'}`}
-      />
+      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
     </button>
   )
 }
@@ -32,6 +31,8 @@ export default function AddGuestModal({ onSelect, onClose }) {
   const [searching, setSearching] = useState(false)
   const [showForm, setShowForm] = useState(true)
   const [showIdProof, setShowIdProof] = useState(false)
+  const [existingGuest, setExistingGuest] = useState(null)
+  const [readOnly, setReadOnly] = useState(false)
   const inputRef = useRef(null)
 
   const { data, setData, post, processing, errors, reset } = useForm({
@@ -52,6 +53,8 @@ export default function AddGuestModal({ onSelect, onClose }) {
     const value = e.target.value
     setData('mobile', value)
     setData('phone', value)
+    setExistingGuest(null)
+    setReadOnly(false)
     if (value.length >= 4) {
       setSearching(true)
       try {
@@ -74,7 +77,7 @@ export default function AddGuestModal({ onSelect, onClose }) {
     }
   }
 
-  // Just fill form on select, do NOT call onSelect here
+  // Select existing guest: fill & enable/disable fields accordingly
   const handleSelectGuest = guest => {
     setData('first_name', guest.first_name)
     setData('last_name', guest.last_name)
@@ -87,10 +90,22 @@ export default function AddGuestModal({ onSelect, onClose }) {
     setData('id_proof_number', guest.id_proof_number || '')
     setData('mobile', guest.phone)
     setShowIdProof(!!(guest.id_proof_type || guest.id_proof_number))
-    setMatchedGuests([]) // Hide guests list after selection
+    setMatchedGuests([])
+    setExistingGuest(guest)
     setShowForm(true)
+    setReadOnly(guest.is_profile_completed === 1)
   }
 
+  // Change guest: clear and unlock
+  const handleChangeGuest = () => {
+    setExistingGuest(null)
+    setReadOnly(false)
+    reset()
+    setShowIdProof(false)
+    inputRef.current?.focus()
+  }
+
+  // On submit: Only allow change if !readOnly (either new OR profile_completed==0)
   const submit = async e => {
     e.preventDefault()
     setData('phone', data.mobile)
@@ -98,8 +113,16 @@ export default function AddGuestModal({ onSelect, onClose }) {
       setData('id_proof_type', '')
       setData('id_proof_number', '')
     }
+    if (existingGuest && readOnly) {
+      // Only pass selected guest back but do not update
+      onSelect(existingGuest)
+      reset()
+      setExistingGuest(null)
+      setReadOnly(false)
+      onClose()
+      return
+    }
     try {
-      // Always submit the form whether editing existing or adding new
       const res = await axios.post('/guests', {
         first_name: data.first_name,
         last_name: data.last_name,
@@ -114,9 +137,13 @@ export default function AddGuestModal({ onSelect, onClose }) {
       if (res.data && res.data.guest) {
         onSelect(res.data.guest)
         reset()
+        setExistingGuest(null)
+        setReadOnly(false)
         onClose()
       }
-    } catch (err) { console.log(err) }
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   const handleSwitch = (on) => {
@@ -130,11 +157,7 @@ export default function AddGuestModal({ onSelect, onClose }) {
   return (
     <div className="p-6 space-y-4 relative">
       <h2 className="text-lg font-bold mb-2">Add Guest</h2>
-      <form onSubmit={e => {
-    e.preventDefault();
-    e.stopPropagation(); // <- yeh line sab kuch safe rakh degi!!
-    submit(e);
-  }} className="space-y-4">
+      <form onSubmit={e => { e.preventDefault(); e.stopPropagation(); submit(e); }} className="space-y-4">
         <div className="relative">
           <label className="block text-xs">Phone/Mobile<span className="text-red-500">*</span></label>
           <Input
@@ -145,8 +168,9 @@ export default function AddGuestModal({ onSelect, onClose }) {
             maxLength={15}
             minLength={4}
             required
+            disabled={!!existingGuest}
           />
-          {matchedGuests.length > 0 && (
+          {matchedGuests.length > 0 && !existingGuest && (
             <div className="absolute left-0 top-14 z-50 w-full bg-white shadow-lg border rounded-lg max-h-48 overflow-y-auto" style={{ minWidth: '260px' }}>
               <div className="text-xs px-3 py-2 text-gray-700 font-semibold sticky top-0 bg-white z-10">Select Guest:</div>
               {matchedGuests.map(guest => (
@@ -171,38 +195,42 @@ export default function AddGuestModal({ onSelect, onClose }) {
             </div>
           )}
         </div>
-
         {showForm && (
           <>
-            <div>
-              <label className="block text-xs">First Name<span className="text-red-500">*</span></label>
-              <Input value={data.first_name} onChange={e => setData('first_name', e.target.value)} required />
-              {errors.first_name && <div className="text-red-500 text-xs">{errors.first_name}</div>}
+            <div className="flex gap-3 items-end">
+              <div className="flex-1">
+                <label className="block text-xs">First Name<span className="text-red-500">*</span></label>
+                <Input value={data.first_name} onChange={e => setData('first_name', e.target.value)} required disabled={readOnly} />
+                {errors.first_name && <div className="text-red-500 text-xs">{errors.first_name}</div>}
+              </div>
+              {(existingGuest) && (
+                <Button type="button" variant="secondary" className="h-9 px-3" onClick={handleChangeGuest}>Change Guest</Button>
+              )}
             </div>
             <div>
               <label className="block text-xs">Last Name</label>
-              <Input value={data.last_name} onChange={e => setData('last_name', e.target.value)} />
+              <Input value={data.last_name} onChange={e => setData('last_name', e.target.value)} disabled={readOnly} />
               {errors.last_name && <div className="text-red-500 text-xs">{errors.last_name}</div>}
             </div>
             <div>
               <label className="block text-xs">Email</label>
-              <Input value={data.email} onChange={e => setData('email', e.target.value)} />
+              <Input value={data.email} onChange={e => setData('email', e.target.value)} disabled={readOnly} />
               {errors.email && <div className="text-red-500 text-xs">{errors.email}</div>}
             </div>
             <div>
               <label className="block text-xs">Address</label>
-              <Input value={data.address} onChange={e => setData('address', e.target.value)} />
+              <Input value={data.address} onChange={e => setData('address', e.target.value)} disabled={readOnly} />
               {errors.address && <div className="text-red-500 text-xs">{errors.address}</div>}
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               <div>
                 <label className="block text-xs">City</label>
-                <Input value={data.city} onChange={e => setData('city', e.target.value)} />
+                <Input value={data.city} onChange={e => setData('city', e.target.value)} disabled={readOnly} />
                 {errors.city && <div className="text-red-500 text-xs">{errors.city}</div>}
               </div>
               <div>
                 <label className="block text-xs">Country</label>
-                <Input value={data.country} onChange={e => setData('country', e.target.value)} />
+                <Input value={data.country} onChange={e => setData('country', e.target.value)} disabled={readOnly} />
                 {errors.country && <div className="text-red-500 text-xs">{errors.country}</div>}
               </div>
             </div>
@@ -210,7 +238,7 @@ export default function AddGuestModal({ onSelect, onClose }) {
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <span className="text-xs font-medium">Add ID Proof?</span>
-                <Switch checked={showIdProof} onChange={handleSwitch} />
+                <Switch checked={showIdProof} onChange={handleSwitch} disabled={readOnly} />
                 <span className="text-xs text-gray-500">{showIdProof ? 'Yes' : 'No'}</span>
               </div>
               {showIdProof && (
@@ -218,14 +246,16 @@ export default function AddGuestModal({ onSelect, onClose }) {
                   <div>
                     <label className="block text-xs">ID Proof Type</label>
                     <select value={data.id_proof_type} onChange={e => setData('id_proof_type', e.target.value)}
-                      className="w-full rounded border px-3 py-2">
+                      className="w-full rounded border px-3 py-2"
+                      disabled={readOnly}
+                    >
                       {idProofTypes.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                     </select>
                     {errors.id_proof_type && <div className="text-red-500 text-xs">{errors.id_proof_type}</div>}
                   </div>
                   <div>
                     <label className="block text-xs">ID Proof Number</label>
-                    <Input value={data.id_proof_number} onChange={e => setData('id_proof_number', e.target.value)} />
+                    <Input value={data.id_proof_number} onChange={e => setData('id_proof_number', e.target.value)} disabled={readOnly} />
                     {errors.id_proof_number && <div className="text-red-500 text-xs">{errors.id_proof_number}</div>}
                   </div>
                 </div>

@@ -16,7 +16,8 @@ class Guest extends Model
         'city',
         'country',
         'id_proof_type',
-        'id_proof_number'
+        'id_proof_number',
+        'is_profile_completed',
     ];
 
     public function hotel()

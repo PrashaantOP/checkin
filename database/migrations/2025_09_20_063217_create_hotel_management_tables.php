@@ -105,6 +105,7 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->string('id_proof_type')->nullable();
             $table->string('id_proof_number')->nullable();
+            $table->enum('is_profile_completed', [0, 1])->default(0);
             $table->timestamps();
         });
 
@@ -130,7 +131,7 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
-            $table->foreignId('guest_id')->constrained('guests')->cascadeOnDelete();
+            // $table->foreignId('guest_id')->constrained('guests')->cascadeOnDelete();
             $table->string('booking_number')->unique();
             $table->date('check_in_date');
             $table->date('check_out_date');

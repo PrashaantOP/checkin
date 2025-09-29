@@ -14,10 +14,12 @@ class hoteluserseeder extends Seeder
     public function run(): void
     {
         DB::table('hotel_users')->insert([
-            'hotel_id' => 1,
-            'user_id' => 1,
-            'role' => 'admin',
-            'status' => 1,
+            [
+                'hotel_id' => 1,
+                'user_id' => 1,
+                'role' => 'admin',
+                'status' => 1,
+            ]
         ]);
     }
 }
