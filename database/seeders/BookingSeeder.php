@@ -10,6 +10,7 @@ use App\Models\Room;
 use App\Models\RoomInventory;
 use App\Models\Booking;
 use App\Models\BookingRoom;
+use App\Models\BookingGuest; // <-- Don't forget to import this!
 use Illuminate\Support\Facades\DB;
 
 class BookingSeeder extends Seeder
@@ -34,16 +35,41 @@ class BookingSeeder extends Seeder
         ]);
 
         // 2. Sample Guests
+        $guest1 = Guest::create([
+            'hotel_id' => $hotel->id,
+            'first_name' => 'Rahul',
+            'last_name' => 'Kumar',
+            'email' => 'rahul@example.com',
+            'phone' => '9876543210',
+            'address' => 'Patliputra Colony',
+            'city' => 'Patna',
+            'country' => 'India',
+            'id_proof_type' => 'Aadhar',
+            'id_proof_number' => '1234-5678-9000',
+            'is_profile_completed' => 1,
+        ]);
+        $guest2 = Guest::create([
+            'hotel_id' => $hotel->id,
+            'first_name' => 'Pankaj',
+            'last_name' => 'Singh',
+            'email' => 'pankaj@example.com',
+            'phone' => '7777888899',
+            'address' => 'Gaya',
+            'city' => 'Gaya',
+            'country' => 'India',
+            'id_proof_type' => 'PAN',
+            'id_proof_number' => 'ALWP65890L',
+            'is_profile_completed' => 0,
+        ]);
 
         DB::table('hotel_users')->insert([
             [
-                'hotel_id' => 2,
+                'hotel_id' => $hotel->id,
                 'user_id' => 1,
                 'role' => 'admin',
                 'status' => 1,
             ]
         ]);
-
 
         // 3. Sample Rooms
         $room1 = Room::create([
@@ -65,14 +91,14 @@ class BookingSeeder extends Seeder
 
         // 4. Room Inventory
         $inventory1 = RoomInventory::create([
-            'hotel_id' => 1,
+            'hotel_id' => $hotel->id,
             'room_id'      => $room1->id,
             'room_number'  => '101',
             'floor_number' => '1',
             'status'       => 'available',
         ]);
         $inventory2 = RoomInventory::create([
-            'hotel_id' => 1,
+            'hotel_id' => $hotel->id,
             'room_id'      => $room2->id,
             'room_number'  => '201',
             'floor_number' => '2',
@@ -81,8 +107,7 @@ class BookingSeeder extends Seeder
 
         // 5. Bookings
         $booking1 = Booking::create([
-            'hotel_id'        => 1,
-            'guest_id'        => 1,
+            'hotel_id'        => $hotel->id,
             'booking_number'  => strtoupper(Str::random(8)),
             'check_in_date'   => now()->toDateString(),
             'check_out_date'  => now()->addDay()->toDateString(),
@@ -96,8 +121,7 @@ class BookingSeeder extends Seeder
         ]);
 
         $booking2 = Booking::create([
-            'hotel_id'        => 1,
-            'guest_id'        => 2,
+            'hotel_id'        => $hotel->id,
             'booking_number'  => strtoupper(Str::random(8)),
             'check_in_date'   => now()->addDays(2)->toDateString(),
             'check_out_date'  => now()->addDays(4)->toDateString(),
@@ -112,7 +136,7 @@ class BookingSeeder extends Seeder
 
         // 6. Booking Rooms (pivot room assignment for each booking)
         BookingRoom::create([
-            'hotel_id' => 1,
+            'hotel_id' => $hotel->id,
             'booking_id'         => $booking1->id,
             'room_inventory_id'  => $inventory1->id,
             'guests_count'       => 2,
@@ -121,13 +145,27 @@ class BookingSeeder extends Seeder
             'subtotal'           => 2500.00,
         ]);
         BookingRoom::create([
-            'hotel_id' => 1,
+            'hotel_id' => $hotel->id,
             'booking_id'         => $booking2->id,
             'room_inventory_id'  => $inventory2->id,
             'guests_count'       => 3,
             'price_per_night'    => 1750.00,
             'nights'             => 2,
             'subtotal'           => 3500.00,
+        ]);
+
+        // 7. Booking Guests (pivot table: booking_guests)
+        BookingGuest::create([
+            'booking_id' => $booking1->id,
+            'guest_id'   => $guest1->id,
+        ]);
+        BookingGuest::create([
+            'booking_id' => $booking1->id,
+            'guest_id'   => $guest2->id, // E.g. both guests in 1 booking
+        ]);
+        BookingGuest::create([
+            'booking_id' => $booking2->id,
+            'guest_id'   => $guest2->id,
         ]);
     }
 }

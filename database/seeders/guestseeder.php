@@ -25,6 +25,7 @@ class guestseeder extends Seeder
             'country' => 'India',
             'id_proof_type' => 'Aadhar',
             'id_proof_number' => '1234-5678-9012',
+            'is_profile_completed' => '0',
             'created_at' => now(),
             'updated_at' => now(),
         ],
@@ -39,6 +40,7 @@ class guestseeder extends Seeder
             'country' => 'India',
             'id_proof_type' => 'Aadhar',
             'id_proof_number' => '1234-5678-9018',
+            'is_profile_completed' => '0',
             'created_at' => now(),
             'updated_at' => now(),
         ],
@@ -53,6 +55,7 @@ class guestseeder extends Seeder
             'country' => 'India',
             'id_proof_type' => 'Aadhar',
             'id_proof_number' => '1234-5678-9017',
+            'is_profile_completed' => '0',
             'created_at' => now(),
             'updated_at' => now(),
         ]

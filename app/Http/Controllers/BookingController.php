@@ -26,6 +26,18 @@ class BookingController extends Controller
         ]);
     }
 
+    public function create()
+{
+    $currentHotelId = session('current_hotel_id');
+
+    return Inertia::render('backend/Bookings/Create', [
+        'hotels' => Hotel::select('id', 'name')->where('id', $currentHotelId)->get(),
+        'guests' => Guest::select('id', 'first_name', 'last_name')->where('id', $currentHotelId)->get(),
+        'currentHotelId' => $currentHotelId
+    ]);
+}
+
+
 
     public function store(Request $request)
     {

@@ -105,7 +105,7 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->string('id_proof_type')->nullable();
             $table->string('id_proof_number')->nullable();
-            $table->enum('is_profile_completed', [0, 1])->default(0);
+            $table->boolean('is_profile_completed')->default(false);
             $table->timestamps();
         });
 
@@ -131,7 +131,6 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
-            // $table->foreignId('guest_id')->constrained('guests')->cascadeOnDelete();
             $table->string('booking_number')->unique();
             $table->date('check_in_date');
             $table->date('check_out_date');
@@ -143,6 +142,14 @@ return new class extends Migration
             $table->enum('status', ['pending', 'confirmed', 'checked_in', 'checked_out', 'cancelled'])->default('pending');
             $table->enum('payment_status', ['pending', 'paid', 'partial'])->default('pending');
             $table->timestamps();
+        });
+
+        Schema::create('booking_guests', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('booking_id')->constrained('bookings')->cascadeOnDelete();
+            $table->foreignId('guest_id')->constrained('guests')->cascadeOnDelete();
+            $table->timestamps();
+            $table->unique(['booking_id', 'guest_id']); // Optional: enforce no duplicates
         });
 
         // ---------------- Booking Rooms ----------------

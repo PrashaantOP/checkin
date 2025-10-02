@@ -25,10 +25,16 @@ class Guest extends Model
         return $this->belongsTo(Hotel::class);
     }
 
+    public function bookingGuests()
+    {
+        return $this->hasMany(BookingGuest::class, 'guest_id');
+    }
     public function bookings()
     {
-        return $this->hasMany(Booking::class);
+        return $this->belongsToMany(Booking::class, 'booking_guests');
     }
+
+
     public function reviews()
     {
         return $this->hasMany(Review::class);
