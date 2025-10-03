@@ -15,6 +15,7 @@ class GuestController extends Controller
         if ($mobile && strlen($mobile) >= 4 && $currentHotelId) {
             $guests = \App\Models\Guest::where('hotel_id', $currentHotelId)
                 ->where('phone', 'like', $mobile . '%')
+                ->orWhere('id_proof_number', 'like', $mobile . '%')
                 ->limit(10)
                 ->get();
         }
