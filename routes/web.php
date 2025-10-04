@@ -3,6 +3,7 @@
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\HotelSwitchController;
+use App\Http\Controllers\RoomController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -29,6 +30,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/guests/search', [GuestController::class, 'searchByMobile']);
     Route::post('/guests', [GuestController::class, 'store']);
+    Route::get('/guests', [GuestController::class, 'index'])->name('guests.index');
+    Route::post('/guests', [GuestController::class, 'storenew'])->name('guests.store');
+    Route::put('/guests/{guest}', [GuestController::class, 'update'])->name('guests.update');
+
+    //rooms
+    Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
+    Route::post('/rooms', [RoomController::class, 'store'])->name('rooms.store');
+    Route::put('/rooms/{room}', [RoomController::class, 'update'])->name('rooms.update');
+
 });
 
 require __DIR__ . '/settings.php';

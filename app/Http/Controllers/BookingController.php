@@ -15,13 +15,14 @@ class BookingController extends Controller
     {
         $currentHotelId = session('current_hotel_id');
 
-        $bookings = Booking::with(['guest', 'hotel', 'rooms.roomInventory'])
+        $bookings = Booking::with(['guests', 'hotel', 'rooms.roomInventory'])
             ->where('hotel_id', $currentHotelId)  // Filter by current_hotel_id
             ->latest()->paginate(2);
 
+            // dd($bookings->toArray());
+
         return Inertia::render('backend/Bookings/Index', [
             'bookings' => $bookings,
-            'guests'   => Guest::select('id', 'first_name', 'last_name')->get(),
             'hotels'   => Hotel::select('id', 'name')->where('id', $currentHotelId)->get(),
         ]);
     }

@@ -7,6 +7,16 @@ use Illuminate\Http\Request;
 
 class GuestController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        $currentHotelId = session('current_hotel_id');
+        $guests = Guest::where('hotel_id', $currentHotelId)->latest()->paginate(10); // pagination as needed
+
+        return inertia('backend/Guests/Index', [  // adjust inertia path as per your structure!
+            'guests' => $guests
+        ]);
+    }
     public function searchByMobile(Request $request)
     {
         $mobile = $request->query('mobile');
@@ -90,5 +100,49 @@ class GuestController extends Controller
                 'id_proof_number' => $guest->id_proof_number,
             ]
         ]);
+    }
+
+    public function storenew(Request $request)
+    {
+        $data = $request->validate([
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'email' => 'required|email|max:150',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:255',
+            'city' => 'required|string|max:100',
+            'country' => 'required|string|max:100',
+            'id_proof_type' => 'required|string|max:100',
+            'id_proof_number' => 'required|string|max:100',
+            'is_profile_completed' => 'boolean'
+        ]);
+
+        // Automatically assign hotel_id from session:
+        $data['hotel_id'] = session('current_hotel_id');
+
+        Guest::create($data);
+
+        // You can adjust redirect/response as per SPA
+        return redirect()->route('guests.index')->with('success', 'Guest added successfully!');
+    }
+
+    public function update(Request $request, Guest $guest)
+    {
+        $data = $request->validate([
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'email' => 'required|email|max:150',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:255',
+            'city' => 'required|string|max:100',
+            'country' => 'required|string|max:100',
+            'id_proof_type' => 'required|string|max:100',
+            'id_proof_number' => 'required|string|max:100',
+            'is_profile_completed' => 'boolean'
+        ]);
+
+        $guest->update($data);
+
+        return redirect()->route('guests.index')->with('success', 'Guest updated successfully!');
     }
 }

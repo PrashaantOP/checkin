@@ -3,13 +3,15 @@ import AppLayout from '@/layouts/app-layout'
 import { Button } from '@/components/ui/button'
 import { Pencil, Trash } from 'lucide-react'
 import { useState } from 'react'
+import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog'
+import GuestDetails from './guestDetails' // Adjust the import path as needed
 
+type Guest = { id: number, first_name: string, last_name: string, phone?: string, [key: string]: any }
 type Booking = {
   id: number
   booking_number: string
   hotel_id?: number
-  guest_id?: number
-  guest: { first_name: string, last_name: string, phone: string }
+  guests: Guest[] // now guests is an array
   hotel: { name: string }
   check_in_date: string
   check_out_date: string
@@ -17,28 +19,22 @@ type Booking = {
   status: string
   created_at: string
 }
-
 type Hotel = { id: number, name: string }
-type Guest = { id: number, first_name: string, last_name: string }
-
 interface BookingsPageProps {
   bookings: { data: Booking[], links?: any[] }
   hotels: Hotel[]
   guests: Guest[]
 }
-
 const breadcrumbs = [
   { title: 'Dashboard', href: '/dashboard' },
   { title: 'Bookings', href: '/bookings' }
 ]
-
 export default function BookingsIndex({ bookings, hotels, guests }: BookingsPageProps) {
   const [pageLoading, setPageLoading] = useState(false)
-
+  const [openGuest, setOpenGuest] = useState<Guest | null>(null)
   const handleEdit = (booking: Booking) => {
     router.visit(`/bookings/${booking.id}/edit`)
   }
-
   const handleDelete = (booking: Booking) => {
     if (window.confirm('Delete booking?')) {
       router.delete(`/bookings/${booking.id}`, {
@@ -47,9 +43,7 @@ export default function BookingsIndex({ bookings, hotels, guests }: BookingsPage
       })
     }
   }
-
   const hasBookings = bookings.data && bookings.data.length > 0
-
   const handlePaginationClick = (link: any) => {
     if (link.url) {
       setPageLoading(true)
@@ -58,11 +52,9 @@ export default function BookingsIndex({ bookings, hotels, guests }: BookingsPage
       })
     }
   }
-
   const handleCreate = () => {
     router.visit('/bookings/create')
   }
-
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Bookings" />
@@ -72,7 +64,6 @@ export default function BookingsIndex({ bookings, hotels, guests }: BookingsPage
             <h1 className="text-xl font-bold">Bookings</h1>
             <Button onClick={handleCreate}>Create Booking</Button>
           </div>
-
           <div className="border border-gray-200 rounded-lg overflow-hidden dark:border-neutral-700 bg-white dark:bg-neutral-900">
             {pageLoading ? (
               <div className="flex justify-center py-20">
@@ -86,8 +77,7 @@ export default function BookingsIndex({ bookings, hotels, guests }: BookingsPage
                   <thead className="bg-gray-50 dark:bg-neutral-700">
                     <tr>
                       <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-400">ID</th>
-                      <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-400">Guest Name</th>
-                      <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-400 hidden md:table-cell">Mobile</th>
+                      <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-400">Guest Names</th>
                       <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-400 hidden md:table-cell">
                         <div className="flex flex-col"><p>Check-In</p><p className='block 2xl:hidden'>Check-Out</p></div>
                       </th>
@@ -103,12 +93,28 @@ export default function BookingsIndex({ bookings, hotels, guests }: BookingsPage
                         <td className="px-4 py-4 text-sm font-medium text-gray-800 dark:text-neutral-200">
                           #{booking.id}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-800 dark:text-neutral-200">
-                          {booking.guest?.first_name} {booking.guest?.last_name}
+                        <td className="px-4 py-4 text-sm text-gray-800 dark:text-neutral-200 flex flex-col justify-start gap-1">
+                        {booking.guests?.map(guest => (
+                            <Dialog
+                            key={guest.id}
+                            open={openGuest?.id === guest.id}
+                            onOpenChange={open => setOpenGuest(open ? guest : null)}
+                            >
+                            <DialogTrigger asChild>
+                                <button
+                                className="text-gray-600 font-bold underline cursor-pointer bg-transparent border-none p-0 text-start"
+                                type="button"
+                                >
+                                {guest.first_name} {guest.last_name}
+                                </button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <GuestDetails guest={guest} />
+                            </DialogContent>
+                            </Dialog>
+                        ))}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-800 dark:text-neutral-200 hidden md:table-cell">
-                          {booking.guest?.phone}
-                        </td>
+
                         <td className="px-4 py-4 text-sm text-gray-800 dark:text-neutral-200 hidden md:table-cell">
                           <div className="flex flex-col">
                             <p className='text-md font-bold'>{booking.check_in_date}</p>

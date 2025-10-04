@@ -58,7 +58,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('max_guests');
             $table->decimal('base_price', 10, 2);
-            $table->enum('status', ['available', 'unavailable'])->default('available');
+            $table->enum('status', ['available', 'occupied', 'maintenance', 'out_of_order'])->default('available');
             $table->timestamps();
         });
 
